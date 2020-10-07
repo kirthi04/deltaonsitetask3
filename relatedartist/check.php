@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'C:\Users\Kiruthiga Selvam\vendor\autoload.php';
+require 'vendor/autoload.php';
 set_time_limit(500);
 $session = new SpotifyWebAPI\Session(
   'CLIENT_ID',
@@ -9,10 +9,11 @@ $session = new SpotifyWebAPI\Session(
   $request
 );
 
-
 $api = new SpotifyWebAPI\SpotifyWebAPI();
 $i=0;
-
+$onlyido = array();
+$forname = array();
+$nwva = array();
 if (isset($_GET['code'])) {
     $graph = array();
     function array_push_assoc($array,$key,$value){
@@ -29,59 +30,52 @@ if (isset($_GET['code'])) {
 
   //  print_r($api->me());
     $idart =  $_SESSION['artist1'] ;
+    $idart2 =  $_SESSION['artist2'] ;
    
    // $artist = $api->getArtist($idart);
 
   //echo '<b>' . $artist->name . '</b>';
   $artists = $api->getArtistRelatedArtists($idart);
+  array_push($onlyido,$idart);
   foreach ($artists->artists as $artist) {
    // echo '<b>' . $artist->name . '</b> <br>';
     $iterate1[$i] = $artist->id;
     $i++;
+    //array_push($onlyido,$iterate1[$i]);
 }
 pushingtothearr($idart,$iterate1);
 $i=0;
+ 
+  $iterate3 = array(); 
+  $iteratem = array();
+  for($k=0;$k>=0;$k++){
+    $i=0;
   for($j=0;$j<(count($iterate1));$j++){
-      $k=0;
-    $artists = $api->getArtistRelatedArtists($iterate1[$j]);
-    foreach ($artists->artists as $artist) {
-      //echo '<b>' . $artist->name . '</b> <br>';
-      $iterate2[$i] = $artist->id;
-      $iteratek[$k] = $artist->id;
-      $i++;
-      $k++;
+        $m=0;
+        $somerand = 0;
+        if(!(array_search($iterate1[$j],$onlyido))){
+          array_push($onlyido,$iterate1[$j]);
+      $artists = $api->getArtistRelatedArtists($iterate1[$j]);
+      foreach ($artists->artists as $artist) {
+      // echo '<b>' . $artist->name . '</b> <br>';
+        $iterate3[$i] = $artist->id;
+        $iteratem[$m] = $artist->id;
+        $i++;
+        $m++;
+        if($artist->id==$idart2){
+          $somerand = 1 ;
+          }
+       
+    }
+    pushingtothearr($iterate1[$j],$iteratem);
+    if($somerand==1){
+      break 2;
+      }
   }
-  pushingtothearr($iterate1[$j],$iteratek);
+    }    
+$iterate1 = $iterate3;
   }
- 
-  $i=0;
- 
-  for($j=0;$j<(count($iterate2));$j++){
-      $m=0;
-    $artists = $api->getArtistRelatedArtists($iterate2[$j]);
-    foreach ($artists->artists as $artist) {
-     // echo '<b>' . $artist->name . '</b> <br>';
-      $iterate3[$i] = $artist->id;
-      $iteratem[$m] = $artist->id;
-      $i++;
-      $m++;
-  }
-  pushingtothearr($iterate2[$j],$iteratem);
-  } 
-  $i=0;
- /*
-  for($j=0;$j<(count($iterate3));$j++){
-      $n=0;
-    $artists = $api->getArtistRelatedArtists($iterate3[$j]);
-    foreach ($artists->artists as $artist) {
-     // echo '<b>' . $artist->name . '</b> <br>';
-      $iterate4[$i] = $artist->id;
-      $iteraten[$n] = $artist->id;
-      $i++;
-      $n++;
-  }
-  pushingtothearr($iterate3[$j],$iteraten);
-  } */  
+
 } 
 else {
     $options = [
@@ -140,12 +134,14 @@ else {
       }
   
       if (isset($path[$destination])) {
-       echo"<div style=' margin-left: 300px; margin-top: 100px; border: 3px solid black; float: left; width: 600px; height: 400px ;  background-color: pink; '>
+       echo"<div style=' margin-left: 400px; margin-top: 100px; border: 3px solid black; float: left; width: 600px; height: 400px ;  background-color: pink; '>
       <h1 style='text-align: center'> TO GET THE  ARTIST2 FROM ARTIST1 THE SHORTEST PATH IS:</h1> <br>";
         $sep = '';
         foreach ($path[$destination] as $vertex) {
           echo"<h2>";
-            echo $sep, $vertex;
+            $artist = $GLOBALS['api']->getArtist($vertex);
+
+            echo $sep, $artist->name;
             echo"</h2>";
           $sep = '---->';
         }
@@ -159,8 +155,9 @@ else {
     }
   }
   $g = new Graph($graph);
-  $idart2 =  $_SESSION['artist2'] ;
+  
     
 $g->breadthFirstSearch($idart,$idart2);
+
 
 ?>
